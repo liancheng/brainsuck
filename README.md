@@ -15,7 +15,9 @@ $ sbt stage
 Use the following command line to run the Hanoi tower example:
 
 ```bash
-JAVA_OPTS=-Xss8m ./target/universal/stage/bin/brainsuck scripts/hanoi.b -O 0
+JAVA_OPTS=-Xss8m ./target/universal/stage/bin/brainsuck scripts/hanoi.b -O 2
 ```
+
+The `-O` flag is used to specify optimization level (0, 1, or 2). `-O 0` disables all optimizations.
 
 Brainsuck uses recursion extensively for conciseness.  That's why you need to specify stack size to avoid stack overflow.  These recursions can be easily removed, but this makes the codebase unnecessarily bloated.  Anyway, this is only a prototype for demo :^)
