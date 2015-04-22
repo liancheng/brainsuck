@@ -1,23 +1,31 @@
 package brainsuck
 
-object Contraction extends Rule[Instruction] {
+object MergeMoves extends Rule[Instruction] {
   override def apply(tree: Instruction) = tree.transformUp {
-    case Add(n, Add (m, next)) =>
-      if (n + m == 0) next else Add(n + m, next)
-
-    case Move(n, Move(m, next)) =>
-      if (n + m == 0) next else Move(n + m, next)
+    case Move(n, Move(m, next)) => if (n + m == 0) next else Move(n + m, next)
   }
 }
 
-object LoopSimplification extends Rule[Instruction] {
-  override def apply(tree: Instruction): Instruction = tree.transform {
-    case Loop(Add(n, Halt), next) =>
-      Clear(next)
+object MergeAdds extends Rule[Instruction] {
+  override def apply(tree: Instruction) = tree.transformUp {
+    case Add(n, Add (m, next)) => if (n + m == 0) next else Add(n + m, next)
+  }
+}
 
-    case Loop(Move(n, Halt), next) =>
-      Scan(n, next)
+object Clears extends Rule[Instruction] {
+  override def apply(tree: Instruction) = tree.transformUp {
+    case Loop(Add(_, Halt), next) => Clear(next)
+  }
+}
 
+object Scans extends Rule[Instruction] {
+  override def apply(tree: Instruction) = tree.transformUp {
+    case Loop(Move(n, Halt), next) => Scan(n, next)
+  }
+}
+
+object MultisAndCopies extends Rule[Instruction] {
+  override def apply(tree: Instruction) = tree.transform {
     case Loop(Add(-1, MoveAddPairs(seq, offset, Move(n, Halt))), next) if n == -offset =>
       seq.foldRight(Clear(next): Instruction) {
         case ((distance, 1), code) => Copy(distance, code)

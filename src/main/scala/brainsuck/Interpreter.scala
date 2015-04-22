@@ -86,8 +86,8 @@ object Interpreter {
 
       val optimizer = new Optimizer {
         override def batches = Seq(
-          Batch("Contraction", Contraction :: Nil, FixedPoint.Unlimited),
-          Batch("LoopSimplification", LoopSimplification :: Nil, Once)
+          Batch("Contraction", MergeAdds :: MergeMoves :: Nil, FixedPoint.Unlimited),
+          Batch("LoopSimplification", Clears :: Scans :: MultisAndCopies :: Nil, Once)
         ).take(optimizationLevel)
       }
 

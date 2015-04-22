@@ -23,7 +23,7 @@ trait TreeNode[BaseType <: TreeNode[BaseType]] {
     else selfTransformed transformChildrenDown rule
   }
 
-  def transformChildrenDown(rule: PartialFunction[BaseType, BaseType]): BaseType =
+  private def transformChildrenDown(rule: PartialFunction[BaseType, BaseType]): BaseType =
     this.withChildren(children.map(_ transformDown rule))
 
   def transformUp(rule: PartialFunction[BaseType, BaseType]): BaseType = {
@@ -32,7 +32,7 @@ trait TreeNode[BaseType <: TreeNode[BaseType]] {
     else rule.applyOrElse(childrenTransformed, identity[BaseType])
   }
 
-  def transformChildrenUp(rule: PartialFunction[BaseType, BaseType]): BaseType =
+  private def transformChildrenUp(rule: PartialFunction[BaseType, BaseType]): BaseType =
     this.withChildren(children.map(_ transformUp rule))
 }
 

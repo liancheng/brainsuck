@@ -7,13 +7,23 @@ import org.scalatest.FunSuite
 
 trait TestUtils { this: FunSuite =>
   val contractionOptimizer = new Optimizer {
-    override def batches = Batch("test", Contraction :: Nil, FixedPoint.Unlimited) :: Nil
+    override def batches = Batch(
+      "Contraction",
+      MergeMoves :: MergeAdds :: Nil,
+      FixedPoint.Unlimited) :: Nil
   }
 
   val fullOptimizer = new Optimizer {
-    override def batches =
-      Batch("Contraction", Contraction :: Nil, FixedPoint.Unlimited) ::
-        Batch("LoopSimplification", LoopSimplification :: Nil, Once) :: Nil
+    override def batches = Seq(
+      Batch(
+        "Contraction",
+        MergeMoves :: MergeAdds :: Nil,
+        FixedPoint.Unlimited),
+
+      Batch(
+        "LoopSimplification",
+        Clears :: Scans :: MultisAndCopies :: Nil,
+        Once))
   }
 
   def makeMachine(pointer: Int = 0, initialMemory: Seq[Int] = Seq(0)): Machine =
