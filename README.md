@@ -24,7 +24,7 @@ Brainsuck uses recursion extensively for conciseness.  That's why you need to sp
 
 ## Acknowledgement
 
-This project is inspired by [brainfuck optimization strategies] [1] authored by Mats Linander.
+This project is inspired by [brainfuck optimization strategies][1] authored by Mats Linander.
 
 ## Licence
 
