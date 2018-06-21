@@ -4,7 +4,7 @@ Brainsuck is an optimizing compiler prototype for the Brainfuck programming lang
 
 ## How to build
 
-Brainsuck requires SBT 0.13.7 or above to build:
+Brainsuck requires SBT 1.1.6 or above to build:
 
 ```bash
 $ sbt stage
