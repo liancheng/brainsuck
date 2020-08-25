@@ -5,16 +5,20 @@ import java.io.File
 import scala.collection.mutable.ArrayBuffer
 import scala.io.Source
 
-import brainsuck.RulesExecutor.{Batch, FixedPoint, Once}
 import scopt.OptionParser
 
+import brainsuck.RulesExecutor.Batch
+import brainsuck.RulesExecutor.FixedPoint
+import brainsuck.RulesExecutor.Once
+
 class Memory(private val buffer: ArrayBuffer[Int] = ArrayBuffer.fill[Int](1024)(0)) {
-  def same(that: Memory) = (this eq that) || {
-    val commonLength = buffer.length.min(that.buffer.length)
-    buffer.take(commonLength) == that.buffer.take(commonLength) &&
+  def same(that: Memory) =
+    (this eq that) || {
+      val commonLength = buffer.length.min(that.buffer.length)
+      buffer.take(commonLength) == that.buffer.take(commonLength) &&
       buffer.drop(commonLength).forall(_ == 0) &&
       that.buffer.drop(commonLength).forall(_ == 0)
-  }
+    }
 
   private def ensureSpace(atLeast: Int): Unit =
     if (atLeast >= buffer.size) {
@@ -36,9 +40,10 @@ class Memory(private val buffer: ArrayBuffer[Int] = ArrayBuffer.fill[Int](1024)(
 }
 
 class Machine(var pointer: Int, val memory: Memory) {
-  def same(that: Machine) = (this eq that) || {
-    pointer == that.pointer && memory.same(that.memory)
-  }
+  def same(that: Machine) =
+    (this eq that) || {
+      pointer == that.pointer && memory.same(that.memory)
+    }
 
   def value = memory(pointer)
 
@@ -79,25 +84,27 @@ object Interpreter {
         .action { (input, config) => config.copy(input = input) }
     }
 
-    optionParser.parse(args, Config()).foreach { case Config(optimizationLevel, input) =>
-      val code = benchmark("Parsing") {
-        BrainsuckParser(Source.fromFile(input, "UTF-8").mkString)
-      }
+    optionParser.parse(args, Config()).foreach {
+      case Config(optimizationLevel, input) =>
+        val code = benchmark("Parsing") {
+          BrainsuckParser(Source.fromFile(input, "UTF-8").mkString)
+        }
 
-      val optimizer = new Optimizer {
-        override def batches = Seq(
-          Batch("Contraction", MergeAdds :: MergeMoves :: Nil, FixedPoint.Unlimited),
-          Batch("LoopSimplification", Clears :: Scans :: MultisAndCopies :: Nil, Once)
-        ).take(optimizationLevel)
-      }
+        val optimizer = new Optimizer {
+          override def batches =
+            Seq(
+              Batch("Contraction", MergeAdds :: MergeMoves :: Nil, FixedPoint.Unlimited),
+              Batch("LoopSimplification", Clears :: Scans :: MultisAndCopies :: Nil, Once)
+            ).take(optimizationLevel)
+        }
 
-      val optimized = benchmark("Optimization") {
-        if (optimizationLevel > 0) optimizer(code) else code
-      }
+        val optimized = benchmark("Optimization") {
+          if (optimizationLevel > 0) optimizer(code) else code
+        }
 
-      benchmark("Execution") {
-        Instruction.untilHalt(optimized, new Machine(0, new Memory()))
-      }
+        benchmark("Execution") {
+          Instruction.untilHalt(optimized, new Machine(0, new Memory()))
+        }
     }
   }
 }

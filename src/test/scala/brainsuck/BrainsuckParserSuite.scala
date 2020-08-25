@@ -1,8 +1,8 @@
 package brainsuck
 
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
-class BrainsuckParserSuite extends FunSuite {
+class BrainsuckParserSuite extends AnyFunSuite {
 
   test("parse") {
     def check(source: String)(code: => Instruction): Unit = {

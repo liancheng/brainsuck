@@ -24,9 +24,10 @@ object RulesExecutor {
   }
 
   case class Batch[BaseType <: TreeNode[BaseType]](
-      name: String,
-      rules: Seq[Rule[BaseType]],
-      strategy: Strategy)
+    name: String,
+    rules: Seq[Rule[BaseType]],
+    strategy: Strategy
+  )
 
   private def executeBatch[T <: TreeNode[T]](batch: Batch[T], tree: T) = {
     def executeRules(rules: Seq[Rule[T]], tree: T) =

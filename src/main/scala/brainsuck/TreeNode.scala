@@ -8,7 +8,7 @@ trait TreeNode[BaseType <: TreeNode[BaseType]] {
   def same(that: BaseType) = (this eq that) || this == that
 
   protected def sameChildren(otherChildren: Seq[BaseType]) =
-    children.size == otherChildren.size && (children, otherChildren).zipped.forall(_ same _)
+    children.size == otherChildren.size && children.lazyZip(otherChildren).forall(_ same _)
 
   protected def withChildren(otherChildren: Seq[BaseType]): BaseType =
     if (this sameChildren otherChildren) this else makeCopy(otherChildren)

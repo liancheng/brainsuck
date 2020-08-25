@@ -1,8 +1,8 @@
 package brainsuck
 
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
-class TreeNodeSuite extends FunSuite {
+class TreeNodeSuite extends AnyFunSuite {
   test("transformUp") {
     assertResult(Add(1, Add(2, Add(3, Halt)))) {
       Add(5, Add(4, Add(3, Halt))) transformUp {
