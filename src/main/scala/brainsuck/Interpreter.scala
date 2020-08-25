@@ -95,11 +95,11 @@ object Interpreter {
             Seq(
               Batch("Contraction", MergeAdds :: MergeMoves :: Nil, FixedPoint.Unlimited),
               Batch("LoopSimplification", Clears :: Scans :: MultisAndCopies :: Nil, Once)
-            ).take(optimizationLevel)
+            ) take optimizationLevel
         }
 
         val optimized = benchmark("Optimization") {
-          if (optimizationLevel > 0) optimizer(code) else code
+          optimizer(code)
         }
 
         benchmark("Execution") {
