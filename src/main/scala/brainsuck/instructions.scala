@@ -16,53 +16,54 @@ sealed trait UnaryInstruction extends Instruction with UnaryNode[Instruction] {
 }
 
 case object Halt extends LeafInstruction {
-  override def run(m: Machine) = ()
+  override def run(m: Machine): Unit = ()
 }
 
 case class Add(n: Int, child: Instruction) extends UnaryInstruction {
-  override protected def makeCopy(args: Seq[Instruction]) = copy(child = args.head)
-  override def run(m: Machine) = m.value += n
+  override protected def makeCopy(args: Seq[Instruction]): Instruction = copy(child = args.head)
+  override def run(m: Machine): Unit = m.value += n
 }
 
 case class Move(n: Int, child: Instruction) extends UnaryInstruction {
-  override protected def makeCopy(args: Seq[Instruction]) = copy(child = args.head)
-  override def run(m: Machine) = m.pointer += n
+  override protected def makeCopy(args: Seq[Instruction]): Instruction = copy(child = args.head)
+  override def run(m: Machine): Unit = m.pointer += n
 }
 
 case class Scan(n: Int, child: Instruction) extends UnaryInstruction {
-  override protected def makeCopy(args: Seq[Instruction]) = copy(child = args.head)
-  override def run(m: Machine) = while (m.value != 0) m.pointer += n
+  override protected def makeCopy(args: Seq[Instruction]): Instruction = copy(child = args.head)
+  override def run(m: Machine): Unit = while (m.value != 0) m.pointer += n
 }
 
 case class Out(child: Instruction) extends UnaryInstruction {
-  override protected def makeCopy(args: Seq[Instruction]) = copy(child = args.head)
-  override def run(m: Machine) = print(m.value.toChar)
+  override protected def makeCopy(args: Seq[Instruction]): Instruction = copy(child = args.head)
+  override def run(m: Machine): Unit = print(m.value.toChar)
 }
 
 case class In(child: Instruction) extends UnaryInstruction {
-  override protected def makeCopy(args: Seq[Instruction]) = copy(child = args.head)
-  override def run(m: Machine) = m.value = System.in.read()
+  override protected def makeCopy(args: Seq[Instruction]): Instruction = copy(child = args.head)
+  override def run(m: Machine): Unit = m.value = System.in.read()
 }
 
 case class Loop(body: Instruction, next: Instruction) extends Instruction {
   override def children = Seq(body, next)
-  override protected def makeCopy(args: Seq[Instruction]) = copy(body = args.head, next = args.last)
-  override def run(m: Machine) = while (m.value != 0) Instruction.untilHalt(body, m)
+  override protected def makeCopy(args: Seq[Instruction]): Instruction =
+    copy(body = args.head, next = args.last)
+  override def run(m: Machine): Unit = while (m.value != 0) Instruction.untilHalt(body, m)
 }
 
 case class Clear(child: Instruction) extends UnaryInstruction {
-  override protected def makeCopy(args: Seq[Instruction]) = copy(child = args.head)
-  override def run(m: Machine) = m.value = 0
+  override protected def makeCopy(args: Seq[Instruction]): Instruction = copy(child = args.head)
+  override def run(m: Machine): Unit = m.value = 0
 }
 
 case class Copy(offset: Int, child: Instruction) extends UnaryInstruction {
-  override protected def makeCopy(args: Seq[Instruction]) = copy(child = args.head)
-  override def run(m: Machine) = m.memory(m.pointer + offset) += m.value
+  override protected def makeCopy(args: Seq[Instruction]): Instruction = copy(child = args.head)
+  override def run(m: Machine): Unit = m.memory(m.pointer + offset) += m.value
 }
 
 case class Multi(offset: Int, n: Int, child: Instruction) extends UnaryInstruction {
-  override protected def makeCopy(args: Seq[Instruction]) = copy(child = args.head)
-  override def run(m: Machine) = m.memory(m.pointer + offset) += m.value * n
+  override protected def makeCopy(args: Seq[Instruction]): Instruction = copy(child = args.head)
+  override def run(m: Machine): Unit = m.memory(m.pointer + offset) += m.value * n
 }
 
 object Instruction {

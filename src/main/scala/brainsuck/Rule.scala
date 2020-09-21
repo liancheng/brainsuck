@@ -20,7 +20,7 @@ object RulesExecutor {
   }
 
   case object FixedPoint {
-    val Unlimited = FixedPoint(-1)
+    val Unlimited: FixedPoint = FixedPoint(-1)
   }
 
   case class Batch[BaseType <: TreeNode[BaseType]](
@@ -29,8 +29,8 @@ object RulesExecutor {
     strategy: Strategy
   )
 
-  private def executeBatch[T <: TreeNode[T]](batch: Batch[T], tree: T) = {
-    def executeRules(rules: Seq[Rule[T]], tree: T) =
+  private def executeBatch[T <: TreeNode[T]](batch: Batch[T], tree: T): T = {
+    def executeRules(rules: Seq[Rule[T]], tree: T): T =
       rules.foldLeft(tree) { case (toTransform, rule) => rule(toTransform) }
 
     @tailrec def untilFixedPoint(rules: Seq[Rule[T]], tree: T, maxIterations: Int): T = {
@@ -40,14 +40,11 @@ object RulesExecutor {
     }
 
     batch.strategy match {
-      case Once =>
-        executeRules(batch.rules, tree)
-
-      case FixedPoint(maxIterations) =>
-        untilFixedPoint(batch.rules, tree, maxIterations)
+      case Once                      => executeRules(batch.rules, tree)
+      case FixedPoint(maxIterations) => untilFixedPoint(batch.rules, tree, maxIterations)
     }
   }
 
   def apply[T <: TreeNode[T]](tree: T, batches: Seq[Batch[T]]): T =
-    batches.foldLeft(tree) { case (toTransform, batch) => executeBatch(batch, toTransform) }
+    (batches foldLeft tree) { case (toTransform, batch) => executeBatch(batch, toTransform) }
 }

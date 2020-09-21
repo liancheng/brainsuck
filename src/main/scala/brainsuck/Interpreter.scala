@@ -4,6 +4,7 @@ import java.io.File
 
 import scala.collection.mutable.ArrayBuffer
 import scala.io.Source
+import scala.util.Using
 
 import scopt.OptionParser
 
@@ -12,7 +13,7 @@ import brainsuck.RulesExecutor.FixedPoint
 import brainsuck.RulesExecutor.Once
 
 class Memory(private val buffer: ArrayBuffer[Int] = ArrayBuffer.fill[Int](1024)(0)) {
-  def same(that: Memory) =
+  def same(that: Memory): Boolean =
     (this eq that) || {
       val commonLength = buffer.length.min(that.buffer.length)
       buffer.take(commonLength) == that.buffer.take(commonLength) &&
@@ -36,16 +37,16 @@ class Memory(private val buffer: ArrayBuffer[Int] = ArrayBuffer.fill[Int](1024)(
     buffer(pointer) = value
   }
 
-  override def toString = buffer.mkString("|")
+  override def toString: String = buffer.mkString("|")
 }
 
 class Machine(var pointer: Int, val memory: Memory) {
-  def same(that: Machine) =
+  def same(that: Machine): Boolean =
     (this eq that) || {
       pointer == that.pointer && memory.same(that.memory)
     }
 
-  def value = memory(pointer)
+  def value: Int = memory(pointer)
 
   def value_=(n: Int): Unit = memory(pointer) = n
 
@@ -55,7 +56,7 @@ class Machine(var pointer: Int, val memory: Memory) {
 trait Optimizer {
   def batches: Seq[Batch[Instruction]]
 
-  def apply(code: Instruction) = RulesExecutor(code, batches)
+  def apply(code: Instruction): Instruction = RulesExecutor(code, batches)
 }
 
 object Interpreter {
@@ -87,11 +88,13 @@ object Interpreter {
     optionParser.parse(args, Config()).foreach {
       case Config(optimizationLevel, input) =>
         val code = benchmark("Parsing") {
-          BrainsuckParser(Source.fromFile(input, "UTF-8").mkString)
+          Using.resource(Source.fromFile(input, "UTF-8")) { source =>
+            BrainsuckParser(source.mkString)
+          }
         }
 
         val optimizer = new Optimizer {
-          override def batches =
+          override def batches: Seq[Batch[Instruction]] =
             Seq(
               Batch("Contraction", MergeAdds :: MergeMoves :: Nil, FixedPoint.Unlimited),
               Batch("LoopSimplification", Clears :: Scans :: MultisAndCopies :: Nil, Once)
