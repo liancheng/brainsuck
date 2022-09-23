@@ -1,4 +1,9 @@
+.bloop/
+.bsp/
 .idea/
+.metals/
 .vscode/
+project/.bloop
+project/metals.sbt
 project/project/
 target/
