@@ -35,7 +35,7 @@ object RulesExecutor {
 
     @tailrec def untilFixedPoint(rules: Seq[Rule[T]], tree: T, maxIterations: Int): T = {
       val transformed = executeRules(rules, tree)
-      if (transformed.same(tree) || maxIterations == 1) transformed
+      if (transformed == tree || maxIterations == 1) transformed
       else untilFixedPoint(rules, transformed, maxIterations - 1)
     }
 

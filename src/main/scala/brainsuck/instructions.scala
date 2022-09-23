@@ -6,12 +6,10 @@ sealed trait Instruction extends TreeNode[Instruction] {
 }
 
 sealed trait LeafInstruction extends Instruction with LeafNode[Instruction] {
-  self: Instruction =>
   def next: Instruction = this
 }
 
 sealed trait UnaryInstruction extends Instruction with UnaryNode[Instruction] {
-  self: Instruction =>
   def next: Instruction = child
 }
 

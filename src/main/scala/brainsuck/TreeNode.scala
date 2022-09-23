@@ -1,32 +1,28 @@
 package brainsuck
 
-trait TreeNode[BaseType <: TreeNode[BaseType]] {
-  self: BaseType =>
-
+trait TreeNode[BaseType <: TreeNode[BaseType]] { this: BaseType =>
   def children: Seq[BaseType]
 
-  def same(that: BaseType): Boolean = (this eq that) || this == that
-
-  protected def sameChildren(otherChildren: Seq[BaseType]): Boolean =
-    children.size == otherChildren.size && children.lazyZip(otherChildren).forall(_ same _)
-
-  protected def withChildren(otherChildren: Seq[BaseType]): BaseType =
-    if (this sameChildren otherChildren) this else makeCopy(otherChildren)
+  private def withChildren(otherChildren: Seq[BaseType]): BaseType = {
+    def sameChildren(otherChildren: Seq[BaseType]): Boolean =
+      children.size == otherChildren.size && children.lazyZip(otherChildren).forall(_ == _)
+    if (sameChildren(otherChildren)) this else makeCopy(otherChildren)
+  }
 
   protected def makeCopy(args: Seq[BaseType]): BaseType
 
   def transformDown(rule: PartialFunction[BaseType, BaseType]): BaseType = {
     val selfTransformed = rule.applyOrElse(this, identity[BaseType])
-    if (this same selfTransformed) this transformChildrenDown rule
+    if (this == selfTransformed) this transformChildrenDown rule
     else selfTransformed transformChildrenDown rule
   }
 
-  private def transformChildrenDown(rule: PartialFunction[BaseType, BaseType]): BaseType =
+  def transformChildrenDown(rule: PartialFunction[BaseType, BaseType]): BaseType =
     this withChildren children.map(_ transformDown rule)
 
   def transformUp(rule: PartialFunction[BaseType, BaseType]): BaseType = {
     val childrenTransformed = transformChildrenUp(rule)
-    if (this same childrenTransformed) rule.applyOrElse(this, identity[BaseType])
+    if (this == childrenTransformed) rule.applyOrElse(this, identity[BaseType])
     else rule.applyOrElse(childrenTransformed, identity[BaseType])
   }
 
@@ -34,16 +30,12 @@ trait TreeNode[BaseType <: TreeNode[BaseType]] {
     this withChildren children.map(_ transformUp rule)
 }
 
-trait LeafNode[BaseType <: TreeNode[BaseType]] extends TreeNode[BaseType] {
-  self: BaseType =>
-
+trait LeafNode[BaseType <: TreeNode[BaseType]] extends TreeNode[BaseType] { this: BaseType =>
   override def children = Seq.empty[BaseType]
   override def makeCopy(args: Seq[BaseType]): BaseType = this
 }
 
-trait UnaryNode[BaseType <: TreeNode[BaseType]] extends TreeNode[BaseType] {
-  self: BaseType =>
-
+trait UnaryNode[BaseType <: TreeNode[BaseType]] extends TreeNode[BaseType] { this: BaseType =>
   def child: BaseType
   override def children = Seq(child)
 }

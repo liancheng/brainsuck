@@ -55,7 +55,7 @@ trait TestUtils { this: AnyFunSuite =>
     val optimizedCode = optimizer(BrainsuckParser(source))
 
     assert(
-      optimizedCode same tree,
+      optimizedCode == tree,
       s"""Wrong optimized code for $source
          |Expected: $tree
          |Actual:   $optimizedCode
