@@ -1,7 +1,7 @@
 name := "brainsuck"
 version := "1.0"
 
-scalaVersion := "2.13.3"
+scalaVersion := "2.13.8"
 scalacOptions ++= Seq(
   "-deprecation",
   "-Ywarn-unused"
@@ -16,6 +16,6 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "3.2.0" % "test"
 )
 
-ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.4.0"
+ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.6.0"
 
 enablePlugins(JavaAppPackaging)
